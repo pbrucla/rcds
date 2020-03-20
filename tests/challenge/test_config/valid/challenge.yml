@@ -1,0 +1,26 @@
+name: Test challenge
+author: author
+value: 500
+
+flag:
+  file: ./flag.txt
+
+description: |
+  Here's the flag!
+
+provide:
+- ./flag.txt
+- file: ./flag.txt
+  as: other-file.txt
+
+containers:
+  main:
+    build: .
+    ports:
+    - 9999
+    replicas: 2
+
+expose:
+  main:
+  - target: 9999
+    tcp: 31554

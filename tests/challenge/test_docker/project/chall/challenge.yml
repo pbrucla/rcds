@@ -1,0 +1,20 @@
+name: Challenge
+description: Description
+
+containers:
+  simple:
+    build: .
+    ports:
+    - 9999
+  complex:
+    build:
+      context: .
+      dockerfile: Dockerfile.alternate
+      args:
+        foo: "bar"
+    ports:
+    - 9999
+  postgres:
+    image: postgres
+    ports:
+    - 5432

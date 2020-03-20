@@ -1,0 +1,91 @@
+name: CI
+on:
+  push:
+    branches: [master]
+    tags:
+      - v*
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade poetry
+          poetry --version
+          poetry install --no-interaction
+
+      - name: Lint
+        run: poetry run pre-commit run --all-files
+
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9]
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade poetry
+          python -m pip install --upgrade codecov
+          poetry --version
+          poetry install --no-interaction
+
+      - name: Test
+        run: |
+          make cover
+
+      - name: Upload coverage reports
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          codecov --token="$CODECOV_TOKEN"
+
+  publish:
+    runs-on: ubuntu-20.04
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - lint
+      - test
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --upgrade poetry
+          poetry --version
+
+      - name: Check tag is correct
+        run: |
+          [ $(poetry version -s) = ${GITHUB_REF##refs/tags/v} ]
+
+      - name: Build artifacts
+        run: poetry build
+
+      - name: Publish
+        env:
+          POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_TOKEN }}
+        run: poetry publish
