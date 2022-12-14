@@ -15,7 +15,7 @@ metadata:
     {{ options.annotations.ingress | yaml(4) }}
   {% endif %}
 spec:
-  ingressClassName: traefik
+  ingressClassName: {{ options.ingressController }}
   tls:
     - hosts:
         - "{{ options.domain }}"
