@@ -27,6 +27,7 @@ spec:
         - name: {{ container.name }}
           image: {{ container.config.image }}
           imagePullPolicy: Always
+          imagePullPolicy: Always
           {% if container.config.ports %}
           ports:
           {% for port in container.config.ports %}
