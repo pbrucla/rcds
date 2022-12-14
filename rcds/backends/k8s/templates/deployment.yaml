@@ -22,6 +22,7 @@ spec:
       containers:
         - name: {{ container.name }}
           image: {{ container.config.image }}
+          imagePullPolicy: Always
           {% if container.config.ports %}
           ports:
           {% for port in container.config.ports %}
@@ -39,6 +40,10 @@ spec:
           {% if container.config.resources %}
           resources:
             {{ container.config.resources | yaml(12) }}
+          {% endif %}
+          {% if container.config.securityContext %}
+          securityContext:
+            {{ container.config.securityContext | yaml(12) }}
           {% endif %}
       automountServiceAccountToken: false
       {% if options.tolerations %}
