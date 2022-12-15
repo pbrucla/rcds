@@ -18,8 +18,9 @@ spec:
   ingressClassName: {{ options.ingressController }}
   tls:
     - hosts:
-        - "{{ options.domain }}"
-        - "*.{{ options.domain }}"
+      {% for httpPort in httpPorts %}
+        - "{{ httpPort.http }}"
+      {% endfor %}
   rules:
   {% for httpPort in httpPorts %}
     - host: {{ httpPort.http }}
