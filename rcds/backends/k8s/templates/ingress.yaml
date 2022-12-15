@@ -20,7 +20,6 @@ spec:
     - hosts:
         - "{{ options.domain }}"
         - "*.{{ options.domain }}"
-      secretName: wildcard-chall-domain
   rules:
   {% for httpPort in httpPorts %}
     - host: {{ httpPort.http }}
