@@ -74,7 +74,7 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
 
         # validate sort order
         if "sortOrder" in self._options:
-            chall_ids = set(challenge["id"] for challenge in self._project.challenges.values())
+            chall_ids = set(challenge.config["id"] for challenge in self._project.challenges.values())
             for chall_id in self._options["sortOrder"]:
                 if chall_id not in chall_ids:
                     print(f"WARNING: sortOrder specifies challenge {chall_id} which doesn't exist")
