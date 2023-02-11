@@ -117,6 +117,8 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
                 challenge.config["sortWeight"] = -self._options["sortOrder"].index(
                     chall_id
                 )
+            else:
+                print(f"WARNING: sortOrder specified but does not contain challenge {chall_id}")
 
     def commit_challenge(self, challenge: rcds.Challenge) -> None:
         chall_id = challenge.config["id"]
