@@ -72,6 +72,13 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
         for challenge in self._project.challenges.values():
             self.preprocess_challenge(challenge)
 
+        # validate sort order
+        if "sortOrder" in self._options:
+            chall_ids = set(challenge["id"] for challenge in self._project.challenges.values())
+            for chall_id in self._options["sortOrder"]:
+                if chall_id not in chall_ids:
+                    print(f"WARNING: sortOrder specifies challenge {chall_id} which doesn't exist")
+
         # Begin actual commit
         remote_challenges: Set[str] = set(
             c["id"]
