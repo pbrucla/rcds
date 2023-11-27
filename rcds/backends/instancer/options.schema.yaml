@@ -1,0 +1,20 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: http://rcds.redpwn.com/schemas/backends/k8s/options.yaml
+type: object
+definitions:
+  annotation:
+    type: object
+    additionalProperties:
+      type: string
+properties:
+  token:
+    type: string
+    description: >-
+      The admin authentication token to use for the instancer.
+  domain:
+    type: string
+    description: >-
+      Domain that the instancer is accessible at.
+required:
+  - domain
+  - token
