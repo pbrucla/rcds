@@ -23,8 +23,8 @@ def deploy(no_docker) -> None:
     project.load_backends()
     click.echo("Loading challenges")
     project.load_all_challenges()
-    if not no_docker:
-        for challenge in project.challenges.values():
+    for challenge in project.challenges.values():
+        if not no_docker:
             cm = rcds.challenge.docker.ContainerManager(challenge)
             for container_name, container in cm.containers.items():
                 click.echo(f"{challenge.config['id']}: checking container {container_name}")
@@ -34,13 +34,13 @@ def deploy(no_docker) -> None:
                         f" ({container.get_full_tag()})"
                     )
                     container.build()
-            challenge.create_transaction().commit()
+        challenge.create_transaction().commit()
     if project.container_backend is not None:
         if not no_docker:
             click.echo("Commiting container backend")
-            project.container_backend.commit()
         else:
-            click.echo("Skipping container backend because --no-docker specified")
+            click.echo("Dry running container backend")
+        project.container_backend.commit(dry_run=no_docker)
     else:
         click.echo("WARN: no container backend, skipping...")
     if project.scoreboard_backend is not None:

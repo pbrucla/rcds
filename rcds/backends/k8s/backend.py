@@ -39,7 +39,7 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
 
         config.load_kube_config(context=self._options.get("kubeContext", None))
 
-    def commit(self) -> bool:
+    def commit(self, dry_run=False) -> bool:
         deployed_challs = filter(
             lambda c: c.config["deployed"], self._project.challenges.values()
         )
@@ -52,7 +52,8 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
                 )
             )
         )
-        sync_manifests(manifests)
+        if not dry_run:
+            sync_manifests(manifests)
         return True
 
     def get_namespace_for_challenge(self, challenge: rcds.Challenge) -> str:
