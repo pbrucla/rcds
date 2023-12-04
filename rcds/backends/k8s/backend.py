@@ -39,7 +39,7 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
         self._jinja_env.globals["options"] = self._options
 
         config.load_kube_config(context=self._options.get("kubeContext", None))
-
+        
         self._seccomp_profile_root = self._project.root / ".rcds" / "seccompProfiles"
 
     def patch_challenge_schema(self, schema: Dict[str, Any]):
@@ -62,7 +62,7 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
             },
         }
 
-    def commit(self) -> bool:
+    def commit(self, dry_run=False) -> bool:
         deployed_challs = list(
             filter(lambda c: c.config["deployed"], self._project.challenges.values())
         )
@@ -80,9 +80,9 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
                 )
             )
         )
-
-        ensure_seccomp_profiles(seccomp_profiles, self._seccomp_profile_root)
-        sync_manifests(manifests)
+        if not dry_run:
+            ensure_seccomp_profiles(seccomp_profiles, self._seccomp_profile_root)
+            sync_manifests(manifests)
         return True
 
     def get_namespace_for_challenge(self, challenge: rcds.Challenge) -> str:
