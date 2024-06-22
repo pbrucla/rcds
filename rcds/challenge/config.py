@@ -121,19 +121,24 @@ class ConfigLoader:
         relative_path = root.resolve().relative_to(self.project.root.resolve())
         config = load_any(config_file)
 
-        config.setdefault("id", root.name)  # derive id from parent directory name
 
         config = self._apply_defaults(config)
 
         if len(relative_path.parts) >= 2:
             # default category name is the parent of the challenge directory
             config.setdefault("category", relative_path.parts[-2])
+        if len(relative_path.parts) >= 3:
+            # default event is the parent of the category
+            config.setdefault("event", relative_path.parts[-3])
+            config.setdefault("id", f"{relative_path.parts[-3]}-{root.name}")
+        else:
+            config.setdefault("id", root.name)  # derive id from parent directory name
 
         schema_errors: Iterable[errors.SchemaValidationError] = (
             errors.SchemaValidationError(str(e), e)
             for e in self.config_schema_validator.iter_errors(config)
         )
-        # Make a duplicate to check whethere there are errors returned
+        # Make a duplicate to check whether there are errors returned
         schema_errors, schema_errors_dup = tee(schema_errors)
         # This is the same test as used in Validator.is_valid
         if next(schema_errors_dup, None) is not None:

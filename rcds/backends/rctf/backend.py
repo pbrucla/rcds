@@ -134,12 +134,14 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
             rctf_challenge[common_field] = challenge.config[common_field]
         rctf_challenge["description"] = challenge.render_description()
         # add tags
+        rctf_challenge["tags"] = []
         if "tags" in challenge.config:
-            rctf_challenge["tags"] = []
             for tag in challenge.config["tags"]:
                 k, v = next(iter(tag.items()))
                 rctf_challenge["tags"].append({"name": v, "metatag": k})
 
+        if challenge.config["event"] != "":
+            rctf_challenge["tags"].append({"name": challenge.config["event"], "metatag": "event"})
 
         if "value" in challenge.config:
             # Static value

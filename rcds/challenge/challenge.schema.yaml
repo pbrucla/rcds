@@ -79,6 +79,12 @@ properties:
       Whether or not this challenge should be shown on the scoreboard.
     default: true
 
+  event:
+    type: string
+    description: >-
+      id of the event the challenge came from.
+    default: ""
+
   tags:
     type: array
     items:
