@@ -41,6 +41,9 @@ scoreboard backend.
 ``visible`` --- if set to ``false``, the scoreboard backend will act as if this
 challenge does not exist.
 
+``tags`` --- an array of tags in the ``metatag: tag`` format (technically an
+array of objects with a single key-value pair).
+
 .. warning::
 
     Most scoreboard backends will delete any challenges that were created by
