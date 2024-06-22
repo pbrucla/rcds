@@ -79,6 +79,16 @@ properties:
       Whether or not this challenge should be shown on the scoreboard.
     default: true
 
+  tags:
+    type: array
+    items:
+      type: object
+      minProperties: 1
+      maxProperties: 1
+      additionalProperties:
+        type: string
+          
+
   # Static assets
   provide:
     type: array
