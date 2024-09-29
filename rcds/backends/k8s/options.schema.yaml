@@ -22,7 +22,12 @@ properties:
     type: string
     description: >-
       Domain that the cluster is accessible at. NodePorts must be accessible on
-      this domain, and ingresses will be created on subdomains.
+      this domain, and this value will be used as the default for httpDomain.
+  httpDomain:
+    type: string
+    description: >-
+      Ingresses will be created as subdomains of this domain. Defaults to the
+      value of the domain option.
   annotations:
     type: object
     description: >-

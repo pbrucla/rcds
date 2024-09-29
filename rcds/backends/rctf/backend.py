@@ -74,10 +74,15 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
 
         # validate sort order
         if "sortOrder" in self._options:
-            chall_ids = set(challenge.config["id"] for challenge in self._project.challenges.values())
+            chall_ids = set(
+                challenge.config["id"]
+                for challenge in self._project.challenges.values()
+            )
             for chall_id in self._options["sortOrder"]:
                 if chall_id not in chall_ids:
-                    print(f"WARNING: sortOrder specifies challenge {chall_id} which doesn't exist")
+                    print(
+                        f"WARNING: sortOrder specifies challenge {chall_id} which doesn't exist"
+                    )
 
         # Begin actual commit
         remote_challenges: Set[str] = set(
@@ -118,7 +123,9 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
                     chall_id
                 )
             else:
-                print(f"WARNING: sortOrder specified but does not contain challenge {chall_id}")
+                print(
+                    f"WARNING: sortOrder specified but does not contain challenge {chall_id}"
+                )
 
     def commit_challenge(self, challenge: rcds.Challenge) -> None:
         chall_id = challenge.config["id"]
@@ -141,7 +148,9 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
                 rctf_challenge["tags"].append({"name": v, "metatag": k})
 
         if challenge.config["event"] != "":
-            rctf_challenge["tags"].append({"name": challenge.config["event"], "metatag": "event"})
+            rctf_challenge["tags"].append(
+                {"name": challenge.config["event"], "metatag": "event"}
+            )
 
         if "value" in challenge.config:
             # Static value

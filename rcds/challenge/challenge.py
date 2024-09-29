@@ -136,9 +136,9 @@ class Challenge:
                 shortcuts["url"] = f"https://{shortcuts['host']}"
                 has_url = True
             if has_url:
-                shortcuts[
-                    "link"
-                ] = f"[{_strip_scheme(shortcuts['url'])}]({shortcuts['url']})"
+                shortcuts["link"] = (
+                    f"[{_strip_scheme(shortcuts['url'])}]({shortcuts['url']})"
+                )
 
         return shortcuts
 

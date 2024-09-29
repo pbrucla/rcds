@@ -121,7 +121,6 @@ class ConfigLoader:
         relative_path = root.resolve().relative_to(self.project.root.resolve())
         config = load_any(config_file)
 
-
         config = self._apply_defaults(config)
 
         if len(relative_path.parts) >= 2:
@@ -130,7 +129,10 @@ class ConfigLoader:
         if len(relative_path.parts) >= 3:
             # default event is the parent of the category
             config.setdefault("event", relative_path.parts[-3])
-            config.setdefault("id", f"{len(relative_path.parts[-3])}-{relative_path.parts[-3]}-{root.name}")
+            config.setdefault(
+                "id",
+                f"{len(relative_path.parts[-3])}-{relative_path.parts[-3]}-{root.name}",
+            )
         else:
             config.setdefault("id", root.name)  # derive id from parent directory name
 

@@ -8,7 +8,12 @@ from rcds.util import SUPPORTED_EXTENSIONS, find_files
 
 
 @click.command()
-@click.option('--no-docker', '-D', is_flag=True, help="Do not build docker containers or deploy to Kubernetes.")
+@click.option(
+    "--no-docker",
+    "-D",
+    is_flag=True,
+    help="Do not build docker containers or deploy to Kubernetes.",
+)
 def deploy(no_docker) -> None:
     try:
         project_config = find_files(["rcds"], SUPPORTED_EXTENSIONS, recurse=True)[
@@ -27,7 +32,9 @@ def deploy(no_docker) -> None:
         if not no_docker:
             cm = rcds.challenge.docker.ContainerManager(challenge)
             for container_name, container in cm.containers.items():
-                click.echo(f"{challenge.config['id']}: checking container {container_name}")
+                click.echo(
+                    f"{challenge.config['id']}: checking container {container_name}"
+                )
                 if not container.is_built():
                     click.echo(
                         f"{challenge.config['id']}: building container {container_name}"

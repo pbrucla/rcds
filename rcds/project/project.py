@@ -58,9 +58,9 @@ class Project:
         for ext in SUPPORTED_EXTENSIONS:
             for chall_file in self.root.rglob(f"challenge.{ext}"):
                 path = chall_file.parent
-                self.challenges[
-                    path.relative_to(self.root)
-                ] = self.challenge_loader.load(path)
+                self.challenges[path.relative_to(self.root)] = (
+                    self.challenge_loader.load(path)
+                )
 
     def get_challenge(self, relPath: Path) -> Challenge:
         return self.challenges[relPath]

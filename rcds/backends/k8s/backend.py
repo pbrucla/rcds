@@ -88,7 +88,9 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
                 for expose_port in expose_config:
                     if "http" in expose_port:
                         if isinstance(expose_port["http"], str):
-                            expose_port["http"] += "." + self._options["domain"]
+                            expose_port["http"] += "." + (
+                                self._options["httpDomain"] or self._options["domain"]
+                            )
                         else:
                             assert isinstance(expose_port["http"], dict)
                             if "raw" in expose_port["http"]:
