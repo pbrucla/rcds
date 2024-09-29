@@ -163,7 +163,7 @@ class BuildableContainer(Container):
             buildargs=self.buildargs,
             pull=True,
             rm=True,
-            platform="linux/amd64"
+            platform="linux/amd64",
         )
         self.project.docker_client.images.push(
             self.image, tag=self.content_hash, auth_config=self.manager._auth_config
