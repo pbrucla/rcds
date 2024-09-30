@@ -62,9 +62,10 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
             },
         }
 
-    def commit(self, dry_run=False) -> bool:
-        deployed_challs = list(
-            filter(lambda c: c.config["deployed"], self._project.challenges.values())
+    def commit(self, dry_run: bool = False, partial: bool = False) -> bool:
+        deployed_challs = filter(
+            lambda c: c.config["deployed"],
+            self._project.challenges.values(),
         )
         seccomp_profiles = [
             p
@@ -82,7 +83,7 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
         )
         if not dry_run:
             ensure_seccomp_profiles(seccomp_profiles, self._seccomp_profile_root)
-            sync_manifests(manifests)
+            sync_manifests(manifests, partial=partial)
         return True
 
     def get_namespace_for_challenge(self, challenge: rcds.Challenge) -> str:

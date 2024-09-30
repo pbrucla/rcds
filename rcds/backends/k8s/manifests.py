@@ -5,6 +5,7 @@ from typing import Any, Callable, Dict, Iterable, List, Set
 
 import yaml
 from kubernetes import client  # type: ignore
+from kubernetes.client.exceptions import ApiException
 
 from .jinja import jinja_env as parent_jinja_env
 
@@ -122,7 +123,84 @@ def ensure_seccomp_profiles(profiles: List[str], profile_root: Path):
         )
 
 
-def sync_manifests(all_manifests: Iterable[Dict[str, Any]]):
+def ensure_seccomp_profiles(profiles: List[str], profile_root: Path):
+    # FIXME: overlaying env still shares globals dict!
+    sysconfig_jinja_env.globals["namespace"] = sysconfig_namespace
+
+    v1 = client.CoreV1Api()
+    appsv1 = client.AppsV1Api()
+
+    profile_files = {profile: profile_root / profile for profile in profiles}
+    profile_contents = {
+        profile_name: profile_file.read_text()
+        for profile_name, profile_file in profile_files.items()
+    }
+    configmap_yaml = sysconfig_jinja_env.get_template(
+        "sysconfig-seccomp-configmap.yaml"
+    ).render({"data": profile_contents})
+    configmap = yaml.safe_load(configmap_yaml)
+
+    configmap_hasher = hashlib.sha256()
+    configmap_hasher.update(configmap_yaml.encode("utf-8"))
+    configmap_hash = configmap_hasher.hexdigest()
+
+    daemonset_yaml = sysconfig_jinja_env.get_template(
+        "sysconfig-daemonset.yaml"
+    ).render(
+        {
+            "checksums": {
+                "seccomp": configmap_hash,
+            },
+        }
+    )
+    daemonset = yaml.safe_load(daemonset_yaml)
+
+    # TODO: unify handling
+    if configmap["metadata"]["name"] in [
+        m.metadata.name
+        for m in get_api_method_for_kind(v1, "list", "ConfigMap")(
+            sysconfig_namespace
+        ).items
+    ]:
+        print(f"PATCH ConfigMap {sysconfig_namespace}/{configmap['metadata']['name']}")
+        get_api_method_for_kind(v1, "patch", "ConfigMap")(
+            configmap["metadata"]["name"], sysconfig_namespace, configmap
+        )
+    else:
+        print(f"CREATE ConfigMap {sysconfig_namespace}/{configmap['metadata']['name']}")
+        get_api_method_for_kind(v1, "create", "ConfigMap")(
+            sysconfig_namespace, configmap
+        )
+    daemonset_name = daemonset["metadata"]["name"]
+    if daemonset_name in [
+        m.metadata.name
+        for m in get_api_method_for_kind(appsv1, "list", "DaemonSet")(
+            sysconfig_namespace
+        ).items
+    ]:
+        try:
+            print(f"PATCH DaemonSet {sysconfig_namespace}/{daemonset_name}")
+            get_api_method_for_kind(appsv1, "patch", "DaemonSet")(
+                daemonset_name, sysconfig_namespace, daemonset
+            )
+        except client.rest.ApiException:
+            # Conflict of some sort - let's just delete and recreate it
+            print(f"DELETE DaemonSet {sysconfig_namespace}/{daemonset_name}")
+            get_api_method_for_kind(appsv1, "delete", "DaemonSet")(
+                daemonset_name, sysconfig_namespace
+            )
+            print(f"CREATE DaemonSet {sysconfig_namespace}/{daemonset_name}")
+            get_api_method_for_kind(appsv1, "create", "DaemonSet")(
+                sysconfig_namespace, daemonset
+            )
+    else:
+        print(f"CREATE DaemonSet {sysconfig_namespace}/{daemonset_name}")
+        get_api_method_for_kind(appsv1, "create", "DaemonSet")(
+            sysconfig_namespace, daemonset
+        )
+
+
+def sync_manifests(all_manifests: Iterable[Dict[str, Any]], partial: bool = False):
     v1 = client.CoreV1Api()
     appsv1 = client.AppsV1Api()
     networkingv1 = client.NetworkingV1Api()
@@ -161,7 +239,7 @@ def sync_manifests(all_manifests: Iterable[Dict[str, Any]]):
             # the namespace already exists; patch it
             print(f"PATCH Namespace {namespace}")
             v1.patch_namespace(namespace, namespace_manifest)
-        except KeyError:
+        except (ApiException, KeyError):
             # the namespace doesn't exist; create it
             print(f"CREATE Namespace {namespace}")
             v1.create_namespace(namespace_manifest)
@@ -194,7 +272,7 @@ def sync_manifests(all_manifests: Iterable[Dict[str, Any]]):
                         get_api_method_for_kind(
                             api_version_to_client[manifest["apiVersion"]], "patch", kind
                         )(manifest_name, namespace, manifest)
-                    except client.rest.ApiException:
+                    except ApiException:
                         # Conflict of some sort - let's just delete and recreate it
                         print(f"DELETE {kind} {namespace}/{manifest_name}")
                         get_api_method_for_kind(
@@ -214,12 +292,14 @@ def sync_manifests(all_manifests: Iterable[Dict[str, Any]]):
                     get_api_method_for_kind(
                         api_version_to_client[manifest["apiVersion"]], "create", kind
                     )(namespace, manifest)
-            for manifest_name in server_manifest_names:
-                print(f"DELETE {kind} {namespace}/{manifest_name}")
-                get_api_method_for_kind(
-                    api_version_to_client[KIND_TO_API_VERISON[kind]], "delete", kind
-                )(manifest_name, namespace)
+            if not partial:
+                for manifest_name in server_manifest_names:
+                    print(f"DELETE {kind} {namespace}/{manifest_name}")
+                    get_api_method_for_kind(
+                        api_version_to_client[KIND_TO_API_VERISON[kind]], "delete", kind
+                    )(manifest_name, namespace)
 
-    for namespace_name in server_namespaces_names:
-        print(f"DELETE Namespace {namespace_name}")
-        v1.delete_namespace(namespace_name)
+    if not partial:
+        for namespace_name in server_namespaces_names:
+            print(f"DELETE Namespace {namespace_name}")
+            v1.delete_namespace(namespace_name)

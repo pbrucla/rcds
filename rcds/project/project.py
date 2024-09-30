@@ -54,13 +54,18 @@ class Project:
         else:
             self.docker_client = docker.from_env()
 
-    def load_all_challenges(self) -> None:
+    def load_all_challenges(self, scan_paths: list[Path] | None = None) -> None:
+        if scan_paths is None:
+            scan_paths = [self.root]
+        chall_files: set[Path] = set()
         for ext in SUPPORTED_EXTENSIONS:
-            for chall_file in self.root.rglob(f"challenge.{ext}"):
-                path = chall_file.parent
-                self.challenges[path.relative_to(self.root)] = (
-                    self.challenge_loader.load(path)
-                )
+            for base in scan_paths:
+                chall_files |= set(base.rglob(f"challenge.{ext}"))
+        for chall_file in chall_files:
+            path = chall_file.parent
+            self.challenges[path.relative_to(self.root)] = self.challenge_loader.load(
+                path
+            )
 
     def get_challenge(self, relPath: Path) -> Challenge:
         return self.challenges[relPath]
