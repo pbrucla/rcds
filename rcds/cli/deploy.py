@@ -39,6 +39,13 @@ def deploy(no_docker: bool, challenge_dir: list[str]) -> None:
         scan_paths = None
     else:
         scan_paths = [Path(p).resolve() for p in challenge_dir]
+        for p in scan_paths:
+            if not p.is_relative_to(project.root):
+                click.echo(
+                    f'Error: Challenge dir "{p}" is not inside project root',
+                    err=True,
+                )
+                return
     partial = scan_paths is not None
     project.load_all_challenges(scan_paths=scan_paths)
     for challenge in project.challenges.values():
