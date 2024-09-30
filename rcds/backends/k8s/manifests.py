@@ -2,6 +2,7 @@ import re
 from typing import Any, Callable, Dict, Iterable, List, Set
 
 from kubernetes import client  # type: ignore
+from kubernetes.client.exceptions import ApiException
 
 AnyManifest = Dict[str, Any]
 
@@ -34,7 +35,7 @@ def labels_to_label_selector(labels: Dict[str, str]) -> str:
     return selector[:-1]
 
 
-def sync_manifests(all_manifests: Iterable[Dict[str, Any]]):
+def sync_manifests(all_manifests: Iterable[Dict[str, Any]], partial: bool = False):
     v1 = client.CoreV1Api()
     appsv1 = client.AppsV1Api()
     networkingv1 = client.NetworkingV1Api()
@@ -73,7 +74,7 @@ def sync_manifests(all_manifests: Iterable[Dict[str, Any]]):
             # the namespace already exists; patch it
             print(f"PATCH Namespace {namespace}")
             v1.patch_namespace(namespace, namespace_manifest)
-        except KeyError:
+        except (ApiException, KeyError):
             # the namespace doesn't exist; create it
             print(f"CREATE Namespace {namespace}")
             v1.create_namespace(namespace_manifest)
@@ -106,7 +107,7 @@ def sync_manifests(all_manifests: Iterable[Dict[str, Any]]):
                         get_api_method_for_kind(
                             api_version_to_client[manifest["apiVersion"]], "patch", kind
                         )(manifest_name, namespace, manifest)
-                    except client.rest.ApiException:
+                    except ApiException:
                         # Conflict of some sort - let's just delete and recreate it
                         print(f"DELETE {kind} {namespace}/{manifest_name}")
                         get_api_method_for_kind(
@@ -126,12 +127,14 @@ def sync_manifests(all_manifests: Iterable[Dict[str, Any]]):
                     get_api_method_for_kind(
                         api_version_to_client[manifest["apiVersion"]], "create", kind
                     )(namespace, manifest)
-            for manifest_name in server_manifest_names:
-                print(f"DELETE {kind} {namespace}/{manifest_name}")
-                get_api_method_for_kind(
-                    api_version_to_client[KIND_TO_API_VERISON[kind]], "delete", kind
-                )(manifest_name, namespace)
+            if not partial:
+                for manifest_name in server_manifest_names:
+                    print(f"DELETE {kind} {namespace}/{manifest_name}")
+                    get_api_method_for_kind(
+                        api_version_to_client[KIND_TO_API_VERISON[kind]], "delete", kind
+                    )(manifest_name, namespace)
 
-    for namespace_name in server_namespaces_names:
-        print(f"DELETE Namespace {namespace_name}")
-        v1.delete_namespace(namespace_name)
+    if not partial:
+        for namespace_name in server_namespaces_names:
+            print(f"DELETE Namespace {namespace_name}")
+            v1.delete_namespace(namespace_name)

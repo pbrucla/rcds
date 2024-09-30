@@ -13,13 +13,13 @@ class BackendBase(ABC):
 
 class BackendScoreboard(BackendBase):
     @abstractmethod
-    def commit(self) -> bool:
+    def commit(self, dry_run: bool = False, partial: bool = False) -> bool:
         raise NotImplementedError()
 
 
 class BackendContainerRuntime(BackendBase):
     @abstractmethod
-    def commit(self) -> bool:
+    def commit(self, dry_run: bool = False, partial: bool = False) -> bool:
         raise NotImplementedError()
 
 

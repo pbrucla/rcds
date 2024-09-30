@@ -1,3 +1,4 @@
+from pathlib import Path
 from sys import exit
 
 import click
@@ -14,7 +15,14 @@ from rcds.util import SUPPORTED_EXTENSIONS, find_files
     is_flag=True,
     help="Do not build docker containers or deploy to Kubernetes.",
 )
-def deploy(no_docker) -> None:
+@click.option(
+    "--challenge-dir",
+    "-c",
+    default=[],
+    multiple=True,
+    help="Only scan for challenges in a specified subdirectory. Can be specified multiple times.",
+)
+def deploy(no_docker: bool, challenge_dir: list[str]) -> None:
     try:
         project_config = find_files(["rcds"], SUPPORTED_EXTENSIONS, recurse=True)[
             "rcds"
@@ -27,7 +35,12 @@ def deploy(no_docker) -> None:
     click.echo("Initializing backends")
     project.load_backends()
     click.echo("Loading challenges")
-    project.load_all_challenges()
+    if len(challenge_dir) == 0:
+        scan_paths = None
+    else:
+        scan_paths = [Path(p).resolve() for p in challenge_dir]
+    partial = scan_paths is not None
+    project.load_all_challenges(scan_paths=scan_paths)
     for challenge in project.challenges.values():
         if not no_docker:
             cm = rcds.challenge.docker.ContainerManager(challenge)
@@ -47,11 +60,11 @@ def deploy(no_docker) -> None:
             click.echo("Commiting container backend")
         else:
             click.echo("Dry running container backend")
-        project.container_backend.commit(dry_run=no_docker)
+        project.container_backend.commit(dry_run=no_docker, partial=partial)
     else:
         click.echo("WARN: no container backend, skipping...")
     if project.scoreboard_backend is not None:
         click.echo("Commiting scoreboard backend")
-        project.scoreboard_backend.commit()
+        project.scoreboard_backend.commit(partial=partial)
     else:
         click.echo("WARN: no scoreboard backend, skipping...")

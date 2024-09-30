@@ -39,9 +39,10 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
 
         config.load_kube_config(context=self._options.get("kubeContext", None))
 
-    def commit(self, dry_run=False) -> bool:
+    def commit(self, dry_run: bool = False, partial: bool = False) -> bool:
         deployed_challs = filter(
-            lambda c: c.config["deployed"], self._project.challenges.values()
+            lambda c: c.config["deployed"],
+            self._project.challenges.values(),
         )
         # TODO: auto assignment of expose params
         manifests = list(
@@ -53,7 +54,7 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
             )
         )
         if not dry_run:
-            sync_manifests(manifests)
+            sync_manifests(manifests, partial=partial)
         return True
 
     def get_namespace_for_challenge(self, challenge: rcds.Challenge) -> str:
