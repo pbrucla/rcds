@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "rcds"
 version = "0.1.5"
-description = "An automated CTF challenge deployment tool"
+description = "An automated CTF challenge deployment tool, modified for ACM Cyber"
 readme = "README.rst"
-authors = ["redpwn <contact@redpwn.net>"]
-homepage = "https://rcds.redpwn.net"
-repository = "https://github.com/redpwn/rCDS"
+authors = ["ACM Cyber <uclacyber+rcds@acmcyber.com>"]
+homepage = "https://github.com/pbrucla/rcds"
+repository = "https://github.com/pbrucla/rcds"
 license = "BSD-3-Clause"
 packages = [
     { include = "rcds" },
