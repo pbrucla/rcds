@@ -156,7 +156,7 @@ class BuildableContainer(Container):
         self.image = self.manager.get_docker_image(self)
 
     def _build(self) -> None:
-        self.project.docker_client.images.build(
+        (img, _) = self.project.docker_client.images.build(
             path=str(self.root),
             tag=f"{self.image}:{self.content_hash}",
             dockerfile=self.dockerfile,
@@ -165,9 +165,11 @@ class BuildableContainer(Container):
             rm=True,
             platform="linux/amd64",
         )
-        self.project.docker_client.images.push(
-            self.image, tag=self.content_hash, auth_config=self.manager._auth_config
-        )
+        img.tag(self.image, "latest")
+        for tag in (self.content_hash, "latest"):
+            self.project.docker_client.images.push(
+                self.image, tag=tag, auth_config=self.manager._auth_config
+            )
 
     def get_full_tag(self) -> str:
         return f"{self.image}:{self.content_hash}"
