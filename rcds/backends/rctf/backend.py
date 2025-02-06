@@ -64,16 +64,16 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
 
         schema["required"] += ["author", "category", "tiebreakEligible", "sortWeight"]
 
-    def commit(self, partial: bool = False) -> bool:
+    def commit(self, dry_run: bool = False, partial: bool = False) -> bool:
         # Validate challenges
         for challenge in self._project.challenges.values():
             self.validate_challenge(challenge)
 
         for challenge in self._project.challenges.values():
-            self.preprocess_challenge(challenge)
+            self.preprocess_challenge(challenge, partial=partial)
 
         # validate sort order
-        if "sortOrder" in self._options:
+        if "sortOrder" in self._options and not partial:
             chall_ids = set(
                 challenge.config["id"]
                 for challenge in self._project.challenges.values()
@@ -116,14 +116,14 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
                     'Unexpected content in "flag" key on challenge config'
                 )
 
-    def preprocess_challenge(self, challenge: rcds.Challenge) -> None:
+    def preprocess_challenge(self, challenge: rcds.Challenge, partial: bool = False) -> None:
         chall_id = challenge.config["id"]
         if "sortOrder" in self._options:
             if chall_id in self._options["sortOrder"]:
                 challenge.config["sortWeight"] = -self._options["sortOrder"].index(
                     chall_id
                 )
-            else:
+            elif not partial:
                 print(
                     f"WARNING: sortOrder specified but does not contain challenge {chall_id}"
                 )
