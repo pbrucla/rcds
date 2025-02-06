@@ -244,6 +244,39 @@ properties:
         - build
     propertyNames:
       $ref: "#/definitions/domainsafe-name"
+  extraBuilds:
+    type: object
+    description: >-
+      Containers to build and push to docker registry but not deploy. Format is
+      similar to the containers option, except values are just the value of the
+      build option.
+    additionalProperties:
+      oneOf:
+      - type: string
+        description: >-
+          Path to the directory containing a Dockerfile to build for this container.
+      - type: object
+        description: >-
+          Complex build configuration object roughly mirroring that of
+          docker-compose.yml.
+        properties:
+          context:
+            type: string
+            description: >-
+              Path to the build context
+          dockerfile:
+            type: string
+            description: >-
+              Path to the Dockerfile within the build context
+          args:
+            type: object
+            description: >-
+              Build arguments to be passed to the build. Please write
+              numbers as strings to avoid ambiguity from number formatting
+            additionalProperties:
+              type: string
+        required:
+        - context
   expose:
     type: object
     description: >-

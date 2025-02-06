@@ -91,12 +91,18 @@ class Container:
 
     IS_BUILDABLE: bool = False
 
-    def __init__(self, *, container_manager: "ContainerManager", name: str) -> None:
+    def __init__(
+        self,
+        *,
+        container_manager: "ContainerManager",
+        name: str,
+        config: Union[None, Dict[str, Any]] = None,
+    ) -> None:
         self.manager = container_manager
         self.challenge = self.manager.challenge
         self.project = self.challenge.project
         self.name = name
-        self.config = container_manager.config[self.name]
+        self.config = config or container_manager.config[self.name]
 
     def get_full_tag(self) -> str:
         """
@@ -222,6 +228,7 @@ class ContainerManager:
     challenge: "Challenge"
     project: "Project"
     config: Dict[str, Dict[str, Any]]
+    extra_builds: Dict[str, Any]
     containers: Dict[str, Container]
     _auth_config: Dict[str, str]
 
@@ -237,11 +244,13 @@ class ContainerManager:
         self.config = cast(
             Dict[str, Dict[str, Any]], self.challenge.config.get("containers", dict())
         )
+        self.extra_builds = cast(
+            Dict[str, Any], self.challenge.config.get("extraBuilds", dict())
+        )
 
         self._auth_config = self._get_auth_config()
 
-        for name in self.config.keys():
-            container_config = self.config[name]
+        for name, container_config in self.config.items():
             container_constructor: Type[Container]
             if "build" in container_config:
                 container_constructor = BuildableContainer
@@ -251,6 +260,15 @@ class ContainerManager:
                 container_manager=self, name=name
             )
             container_config["image"] = self.containers[name].get_full_tag()
+
+        for name, build_config in self.extra_builds.items():
+            config = {
+                "build": build_config
+            }
+            self.containers[name] = BuildableContainer(
+                container_manager=self, name=name, config=config
+            )
+            config["image"] = self.containers[name].get_full_tag()
 
     def get_docker_image(self, container: Container) -> str:
         image_template = self.project.jinja_env.from_string(
