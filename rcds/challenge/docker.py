@@ -262,9 +262,7 @@ class ContainerManager:
             container_config["image"] = self.containers[name].get_full_tag()
 
         for name, build_config in self.extra_builds.items():
-            config = {
-                "build": build_config
-            }
+            config = {"build": build_config}
             self.containers[name] = BuildableContainer(
                 container_manager=self, name=name, config=config
             )
