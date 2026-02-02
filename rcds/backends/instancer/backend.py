@@ -265,11 +265,14 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
             
             # Set template variables for Jinja templating
             instancer_url = self._options["url"].rstrip("/")
-            challenge.context["link"] = f"[{instancer_url}/challs/{chall_id}]({instancer_url}/challs/{chall_id})"
-            challenge.context["nc"] = "Deploy challenge to see port!"
+            challenge.context["link"] = "{instancer}"
+            challenge.context["nc"] = "{instancer}"
             
             description = challenge.render_description()
-            # Remove template strings
+            # Remove template strings with backticks (e.g., `{{nc}}`)
+            description = re.sub(r"` ?\{.*?\} ?`", "", description)
+
+            # Remove any remaining template strings (e.g., {instancer})
             description = re.sub(r"\{.*?\}", "", description)
             # Append footer
             if "description_footer" in self._options:
