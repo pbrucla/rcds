@@ -4,8 +4,6 @@ from typing import Any, Dict, List, Optional
 import docker  # type: ignore
 from jinja2 import Environment
 
-import click
-
 from rcds.util import SUPPORTED_EXTENSIONS, find_files
 
 from ..backend import BackendContainerRuntime, BackendScoreboard, load_backend_module
