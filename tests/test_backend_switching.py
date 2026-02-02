@@ -1,6 +1,5 @@
 import pytest
 from pathlib import Path
-from unittest.mock import MagicMock
 from rcds.project import Project
 
 @pytest.fixture
