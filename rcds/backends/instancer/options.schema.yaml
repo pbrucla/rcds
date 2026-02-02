@@ -20,7 +20,7 @@ properties:
   description_footer:
     type: string
     description: >-
-      String to append to the end of all instancer descriptions after 2 new lines.
+      String to append to the end of all instancer descriptions. Useful to add a string like "Note: If you see 'no available servers', please wait up to ~5 minutes. If still errored, open a support ticket in our discord."
   domain:
     type: string
     description: >-
