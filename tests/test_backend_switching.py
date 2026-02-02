@@ -2,7 +2,6 @@ import pytest
 from pathlib import Path
 from unittest.mock import MagicMock
 from rcds.project import Project
-from rcds.challenge import Challenge
 
 @pytest.fixture
 def mock_project(tmp_path):
