@@ -241,6 +241,10 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
             if not challenge.config.get("deployed", True):
                 continue
 
+            # Skip if no containers are specified
+            if not challenge.config.get("containers"):
+                continue
+
             chall_id = challenge.config["id"]
             deployed_ids.add(chall_id)
 
@@ -258,12 +262,20 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
 
             # Get metadata
             name = challenge.config["name"]
+            
+            # Set template variables for Jinja templating
+            challenge.context["link"] = "{instancer}"
+            challenge.context["nc"] = "{instancer}"
+            
             description = challenge.render_description()
-            # Remove template strings
+            # Remove template strings with backticks (e.g., `{{nc}}`)
+            description = re.sub(r"` ?\{.*?\} ?`", "", description)
+
+            # Remove any remaining template strings (e.g., {instancer})
             description = re.sub(r"\{.*?\}", "", description)
             # Append footer
             if "description_footer" in self._options:
-                description += f" {self._options['description_footer']}"
+                description += f"\n\n{self._options['description_footer']}"
 
             author = challenge.config.get("author", "")
             if isinstance(author, list):
