@@ -1,6 +1,7 @@
 import os
 from hashlib import sha256
 from pathlib import Path
+import re
 from typing import Any, Dict, Set
 
 import rcds
@@ -140,7 +141,15 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
             "sortWeight",
         ]:
             rctf_challenge[common_field] = challenge.config[common_field]
-        rctf_challenge["description"] = challenge.render_description()
+
+        challenge.context["instancer"] = "{instancer}"
+        description = challenge.render_description()
+
+        # Convert `{instancer}` to just {instancer}
+        # Used so if `{{nc}}` is in the description, it becomes just {instancer} instead of `{instancer}`
+        # after processing by both the instancer backend and here
+        rctf_challenge["description"] = re.sub(r"` ?\{instancer\} ?`", "{instancer}", description)
+
         # add tags
         rctf_challenge["tags"] = []
         if "tags" in challenge.config:
