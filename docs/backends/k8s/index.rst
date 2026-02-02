@@ -24,6 +24,11 @@ subdomains. For example, if ``domain`` is set as ``example.com``, then
 ``chall.example.com`` must be routed through the cluster's ingress controller.
 It is your responsibility to set up the ingress controller.
 
+If your ingresses are served on a different domain than your NodePort services,
+you can specify the ``httpDomain`` option. Subdomains for HTTP challenges will
+be created under this domain. If not specified, it defaults to the value of
+``domain``.
+
 Additional annotations on ingress and service objects can be specified through
 the ``annotations`` key, and affinity and tolerations on pods can be set through
 ``affinity`` and ``tolerations``, respectively.

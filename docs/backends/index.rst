@@ -24,6 +24,22 @@ Each backend may also modify the ``challenge.yaml`` schema---be sure to read
 the docs for the backends you are using to understand challenge options specific
 to that backend.
 
+Using Multiple Backends
+-----------------------
+
+rCDS supports using multiple container backends simultaneously. For example, you
+might want to use the :doc:`Kubernetes <k8s/index>` backend for static
+challenges and the :doc:`Instancer <instancer/index>` backend for challenges
+that require per-team instances.
+
+To use multiple backends, define them all in the ``backends`` list in
+``rcds.yaml``. You can then specify which backend each challenge should use
+with the ``backend`` option in ``challenge.yaml``.
+
+If a challenge does not specify a backend, rCDS will use the
+``defaultContainerBackend`` defined in ``rcds.yaml``. If no default is
+specified, the first container backend in the ``backends`` list will be used.
+
 .. _backends#scoreboard:
 
 Scoreboard Backends
@@ -45,3 +61,4 @@ none of the built-in backends will start containers on the machine that rCDS is
 being run from.
 
 - :doc:`Kubernetes <k8s/index>`
+- :doc:`Instancer <instancer/index>`
