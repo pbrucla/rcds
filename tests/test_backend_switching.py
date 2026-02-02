@@ -79,7 +79,7 @@ def test_backend_selection(mock_project):
     assert backend2.__class__.__name__ == 'ContainerBackend' # instancer backend
 
     chall3 = challenges['Challenge 3']
-    backend3 = mock_project.get_backend_for_challenge(chall3)
+    mock_project.get_backend_for_challenge(chall3)
     backend_name3 = mock_project.get_backend_name_for_challenge(chall3)
     print(f"Chall3 backend: {backend_name3}")
     # Default behavior: first backend if defaultContainerBackend not set
