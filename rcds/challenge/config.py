@@ -67,12 +67,12 @@ class ConfigLoader:
             self._flag_regex = re.compile(f"^{self.project.config['flagFormat']}$")
 
         # Backend config patching
-        for backend in [
-            self.project.container_backend,
-            self.project.scoreboard_backend,
-        ]:
-            if backend is not None:
-                backend.patch_challenge_schema(self.config_schema)
+        backends = list(self.project.container_backends.values())
+        if self.project.scoreboard_backend is not None:
+            backends.append(self.project.scoreboard_backend)
+
+        for backend in backends:
+            backend.patch_challenge_schema(self.config_schema)
         self.config_schema_validator = DefaultValidatingDraft7Validator(
             schema=self.config_schema, format_checker=jsonschema.draft7_format_checker
         )
