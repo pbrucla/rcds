@@ -1,0 +1,59 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: http://rcds.redpwn.com/schemas/backends/instancer/options.yaml
+type: object
+properties:
+  url:
+    type: string
+    description: >-
+      The URL of the cyber-instancer API (e.g., https://instancer.example.com).
+      Can also be set via RCDS_INSTANCER_URL environment variable.
+  login_secret_key:
+    type: string
+    description: >-
+      Base64-encoded 32-byte secret key for generating login tokens.
+      Can also be set via RCDS_INSTANCER_LOGIN_SECRET_KEY environment variable.
+  admin_team_id:
+    type: string
+    description: >-
+      UUID of the admin team for authentication.
+      Can also be set via RCDS_INSTANCER_ADMIN_TEAM_ID environment variable.
+  description_footer:
+    type: string
+    description: >-
+      String to append to the end of all instancer descriptions after 2 new lines.
+  domain:
+    type: string
+    description: >-
+      Domain suffix for HTTP subdomains (e.g., challs.example.com). HTTP
+      subdomains in challenge.yaml will be joined with this domain. If not
+      set, subdomains are used as-is (assuming they are full hostnames).
+  defaults:
+    type: object
+    description: >-
+      Default values for instancer-specific challenge options. These can be
+      overridden per-challenge in challenge.yaml.
+    properties:
+      per_team:
+        type: boolean
+        description: >-
+          Default value for per_team. If true, each team gets their own
+          isolated instance. If false, all teams share a single instance.
+        default: true
+      lifetime:
+        type: integer
+        description: >-
+          Default lifetime in seconds for challenge instances. Teams can
+          renew instances to extend the lifetime.
+        default: 3600
+        minimum: 1
+      boot_time:
+        type: integer
+        description: >-
+          Default boot time in seconds. This is the delay before showing
+          connection information to users, useful for challenges that need
+          initialization time.
+        default: 15
+        minimum: 0
+    default: {}
+required: ['url', 'login_secret_key', 'admin_team_id']
+default: {}

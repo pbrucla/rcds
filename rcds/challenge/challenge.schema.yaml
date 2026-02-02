@@ -318,6 +318,40 @@ properties:
           - required: [tcp]
     propertyNames:
       $ref: "#/definitions/domainsafe-name"
+  backend:
+    type: string
+    description: >-
+      Name of the container backend to use for this challenge. Should match
+      a backend's "resolve" name (e.g., "k8s" or "instancer"). If not
+      specified, uses defaultContainerBackend from rcds.yaml, or the first
+      container backend if no default is set.
+  instancer:
+    type: object
+    description: >-
+      Configuration for the cyber-instancer backend. Only used when
+      backend is set to "instancer".
+    properties:
+      per_team:
+        type: boolean
+        description: >-
+          Whether each team gets their own isolated instance. If false, all
+          teams share a single instance.
+        default: true
+      lifetime:
+        type: integer
+        description: >-
+          How long (in seconds) an instance lives before it is terminated.
+          Teams can renew the instance to extend the lifetime.
+        minimum: 1
+      boot_time:
+        type: integer
+        description: >-
+          Time (in seconds) to wait after starting before showing connection
+          information to the user. Useful for challenges that need time to
+          initialize.
+        minimum: 0
+        default: 0
+    default: {}
 required:
 - name
 - description
