@@ -53,6 +53,55 @@ container. The containers communicate with each other by host name. Adapted from
         - target: 80
           http: viper
 
+Using Multiple Backends
+-----------------------
+
+This example shows an ``rcds.yaml`` with both Kubernetes and Instancer backends,
+and a ``challenge.yaml`` that specifies which backend to use.
+
+.. code-block:: yaml
+
+    # rcds.yaml
+    docker:
+      image:
+        prefix: gcr.io/project/ctf
+
+    backends:
+    - resolve: k8s
+      options:
+        kubeContext: gke_project_zone_cluster
+        domain: challs.example.com
+    - resolve: instancer
+      options:
+        url: https://instancer.example.com
+        login_secret_key: ...
+    
+    defaultContainerBackend: k8s
+
+.. code-block:: yaml
+
+    # challenge.yaml (for an on-demand challenge)
+    name: on-demand-pwn
+    author: Jim
+    description: |-
+      Connect to the challenge: {{link}}
+    
+    backend: instancer
+    
+    instancer:
+      per_team: true
+      lifetime: 3600
+
+    containers:
+      main:
+        build: ./chall
+        ports: [1337]
+    
+    expose:
+      main:
+      - target: 1337
+        tcp: true
+
 .. _config-samples#gke-rctf-gitlab:
 
 GKE and rCTF on GitLab CI

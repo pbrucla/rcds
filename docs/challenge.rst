@@ -59,6 +59,12 @@ you want them :ref:`exposed <challenge#expose>` to the world.
 ``deployed`` --- whether or not this challenge's containers should be deployed.
 Defaults to ``true``.
 
+``backend`` --- the name of the container backend to use for this challenge.
+This should match the ``resolve`` name of one of the backends defined in
+``rcds.yaml``. If not specified, the ``defaultContainerBackend`` from
+``rcds.yaml`` is used, or the first container backend in the ``backends`` list
+if no default is set.
+
 .. _challenge#containers:
 
 Containers

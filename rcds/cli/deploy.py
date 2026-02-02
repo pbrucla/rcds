@@ -32,7 +32,7 @@ def deploy(no_docker: bool, challenge_dir: list[str]) -> None:
         exit(1)
     click.echo(f"Loading project at {project_config}")
     project = rcds.Project(project_config)
-    click.echo("Initializing backends")
+    click.echo("Initializing backends...")
     project.load_backends()
     click.echo("Loading challenges")
     if len(challenge_dir) == 0:
@@ -62,12 +62,18 @@ def deploy(no_docker: bool, challenge_dir: list[str]) -> None:
                     )
                     container.build()
         challenge.create_transaction().commit()
-    if project.container_backend is not None:
-        if not no_docker:
-            click.echo("Commiting container backend")
+    if project.container_backends:
+        # Only commit backends that have challenges assigned to them
+        backends_with_challenges = project.get_backends_with_challenges()
+        if backends_with_challenges:
+            for backend_name, backend in backends_with_challenges.items():
+                if not no_docker:
+                    click.echo(f"Committing container backend: {backend_name}")
+                else:
+                    click.echo(f"Dry running container backend: {backend_name}")
+                backend.commit(dry_run=no_docker, partial=partial)
         else:
-            click.echo("Dry running container backend")
-        project.container_backend.commit(dry_run=no_docker, partial=partial)
+            click.echo("WARN: no challenges assigned to any container backend, skipping...")
     else:
         click.echo("WARN: no container backend, skipping...")
     if project.scoreboard_backend is not None:

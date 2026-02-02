@@ -69,5 +69,12 @@ properties:
     description: >-
       (Optional) regex to validate all flags against. Will be surrounded with `^$`.
     format: regex
+  defaultContainerBackend:
+    type: string
+    description: >-
+      Name of the default container backend to use when a challenge doesn't
+      specify one. Should match a backend's "resolve" name (e.g., "k8s" or
+      "instancer"). If not specified, the first container backend in the
+      backends list will be used.
 required:
 - backends

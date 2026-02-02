@@ -62,9 +62,13 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
             },
         }
 
+    def _should_handle_challenge(self, challenge: rcds.Challenge) -> bool:
+        """Check if this backend should handle the given challenge."""
+        return self._project.get_backend_name_for_challenge(challenge) == "k8s"
+
     def commit(self, dry_run: bool = False, partial: bool = False) -> bool:
         deployed_challs = filter(
-            lambda c: c.config["deployed"],
+            lambda c: c.config["deployed"] and self._should_handle_challenge(c),
             self._project.challenges.values(),
         )
         seccomp_profiles = [

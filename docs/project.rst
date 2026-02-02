@@ -50,6 +50,11 @@ respectively.
 
 ``flagFormat`` --- a regex to test all (static) flags against.
 
+``defaultContainerBackend`` --- the name of the default container backend to use
+for challenges that do not specify one. This should match the ``resolve`` name
+of one of the backends defined in the ``backends`` list. If not specified, the
+first container backend in the ``backends`` list is used.
+
 Reference
 ---------
 
