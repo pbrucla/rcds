@@ -37,12 +37,12 @@ In addition, this backend adds an ``instancer`` section to ``challenge.yaml`` fo
 
     instancer:
       per_team: true
-      lifetime: 3600
+      lifetime: 900
       boot_time: 15
 
 - ``per_team`` (boolean, default: ``true``): Whether each team gets their own isolated instance.
   If ``false``, all teams share a single instance.
-- ``lifetime`` (integer, default: ``3600``): How long (in seconds) an instance lives before it is terminated.
+- ``lifetime`` (integer, default: ``900``): How long (in seconds) an instance lives before it is terminated.
   Teams can renew the instance to extend the lifetime.
 - ``boot_time`` (integer, default: ``15``): Time (in seconds) to wait after starting before showing connection information to the user.
   Useful for challenges that need time to initialize.

@@ -219,7 +219,7 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
         # Get defaults from options
         defaults = self._options.get("defaults", {})
         default_per_team = defaults.get("per_team", True)
-        default_lifetime = defaults.get("lifetime", 3600)
+        default_lifetime = defaults.get("lifetime", 900)
         default_boot_time = defaults.get("boot_time", 15)
 
         # Track deployed challenge IDs for cleanup

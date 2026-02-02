@@ -90,7 +90,7 @@ and a ``challenge.yaml`` that specifies which backend to use.
     
     instancer:
       per_team: true
-      lifetime: 3600
+      lifetime: 900
 
     containers:
       main:
