@@ -141,6 +141,8 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
             "sortWeight",
         ]:
             rctf_challenge[common_field] = challenge.config[common_field]
+
+        challenge.context["instancer"] = "{instancer}"
         description = challenge.render_description()
 
         # Convert `{instancer}` to just {instancer}

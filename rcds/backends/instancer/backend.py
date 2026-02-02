@@ -264,7 +264,6 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
             name = challenge.config["name"]
             
             # Set template variables for Jinja templating
-            instancer_url = self._options["url"].rstrip("/")
             challenge.context["link"] = "{instancer}"
             challenge.context["nc"] = "{instancer}"
             
