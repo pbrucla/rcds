@@ -326,13 +326,17 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
                 "image": container["image"],  # Already resolved by rcds
             }
 
-            # Copy environment
-            if "environment" in container:
-                cont["environment"] = container["environment"]
-
-            # Copy ports
-            if "ports" in container:
-                cont["ports"] = container["ports"]
+            # Copy supported container fields from rcds to instancer format
+            supported_fields = [
+                "args", "command", "imagePullPolicy", "stdin", "stdinOnce",
+                "terminationMessagePath", "terminationMessagePolicy", "tty",
+                "workingDir", "env", "environment", "kubePorts", "ports",
+                "securityContext", "hasEgress", "multiService"
+            ]
+            
+            for field in supported_fields:
+                if field in container:
+                    cont[field] = container[field]
 
             # Copy resources (convert to string format if needed)
             if "resources" in container:
@@ -394,9 +398,10 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
                                 # Convert numeric CPU to millicore string
                                 result[key][resource_type] = f"{int(value * 1000)}m"
                             else:
-                                # Convert numeric memory to string
-                                result[key][resource_type] = str(value)
+                                # Convert numeric memory to string with appropriate units
+                                result[key][resource_type] = str(int(value))
                         else:
+                            # Keep string values as-is (e.g., "100m", "1Gi")
                             result[key][resource_type] = str(value)
         return result
 
