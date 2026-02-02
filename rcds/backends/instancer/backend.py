@@ -304,7 +304,8 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
                 remote_challenges = self._get_client().list_challenges()
                 for remote in remote_challenges:
                     # The list endpoint returns challenge info in a specific format
-                    remote_id = remote.get("id")
+                    challenge_info = remote.get("challenge_info")
+                    remote_id = challenge_info.get("id")
                     if remote_id and remote_id not in deployed_ids:
                         print(f"[instancer] Deleting {remote_id}...")
                         self._get_client().delete_challenge(remote_id)
