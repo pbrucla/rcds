@@ -44,7 +44,7 @@ properties:
         description: >-
           Default lifetime in seconds for challenge instances. Teams can
           renew instances to extend the lifetime.
-        default: 3600
+        default: 900
         minimum: 1
       boot_time:
         type: integer
