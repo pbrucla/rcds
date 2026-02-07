@@ -233,10 +233,6 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
 
             instancer_config = challenge.config.get("instancer", {})
 
-            # Skip if not visible
-            if not challenge.config.get("visible", True):
-                continue
-
             # Skip if not deployed
             if not challenge.config.get("deployed", True):
                 continue
