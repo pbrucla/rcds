@@ -66,7 +66,8 @@ def deploy(no_docker: bool, always_rebuild: bool, challenge_dir: list[str]) -> N
                         f"{challenge.config['id']}: building container {container_name}"
                         f" ({container.get_full_tag()})"
                     )
-                    container.build()
+                    # always force rebuild to save time since is_built check was already performed
+                    container.build(force=True)
         challenge.create_transaction().commit()
     if project.container_backends:
         # Only commit backends that have challenges assigned to them
