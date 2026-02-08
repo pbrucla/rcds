@@ -29,6 +29,8 @@ spec:
             - containerPort: {{ port }}
               name: port-{{ port }}
           {% endfor %}
+          {% else %}
+          ports: []
           {% endif %}
           {% if container.config.environment %}
           env:
@@ -36,21 +38,31 @@ spec:
             - name: {{ name }}
               value: {{ value | quote }}
           {% endfor %}
+          {% else %}
+          env: []
           {% endif %}
           {% if container.config.resources %}
           resources:
             {{ container.config.resources | yaml(12) }}
+          {% else %}
+          resources: {}
           {% endif %}
           {% if container.config.securityContext %}
           securityContext:
             {{ container.config.securityContext | yaml(12) }}
+          {% else %}
+          securityContext: {}
           {% endif %}
       automountServiceAccountToken: false
       {% if options.tolerations %}
       tolerations:
         {{ options.tolerations | yaml(8) }}
+      {% else %}
+      tolerations: []
       {% endif %}
       {% if options.affinity %}
       affinity:
         {{ options.affinity | yaml(8) }}
+      {% else %}
+      affinity: {}
       {% endif %}

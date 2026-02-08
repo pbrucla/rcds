@@ -13,6 +13,8 @@ metadata:
   {% if options.annotations and options.annotations.ingress %}
   annotations:
     {{ options.annotations.ingress | yaml(4) }}
+  {% else %}
+  annotations: {}
   {% endif %}
 spec:
   ingressClassName: {{ options.ingressController }}
