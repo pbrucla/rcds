@@ -16,13 +16,19 @@ from rcds.util import SUPPORTED_EXTENSIONS, find_files
     help="Do not build docker containers or deploy to Kubernetes.",
 )
 @click.option(
+    "--always-rebuild",
+    "-B",
+    is_flag=True,
+    help="Always rebuild docker containers even if they already exist.",
+)
+@click.option(
     "--challenge-dir",
     "-c",
     default=[],
     multiple=True,
     help="Only scan for challenges in a specified subdirectory. Can be specified multiple times.",
 )
-def deploy(no_docker: bool, challenge_dir: list[str]) -> None:
+def deploy(no_docker: bool, always_rebuild: bool, challenge_dir: list[str]) -> None:
     try:
         project_config = find_files(["rcds"], SUPPORTED_EXTENSIONS, recurse=True)[
             "rcds"
@@ -55,7 +61,7 @@ def deploy(no_docker: bool, challenge_dir: list[str]) -> None:
                 click.echo(
                     f"{challenge.config['id']}: checking container {container_name}"
                 )
-                if not container.is_built():
+                if always_rebuild or not container.is_built():
                     click.echo(
                         f"{challenge.config['id']}: building container {container_name}"
                         f" ({container.get_full_tag()})"
