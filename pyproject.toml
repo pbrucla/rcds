@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "rcds"
-version = "0.2.6"
+version = "0.2.7"
 description = "An automated CTF challenge deployment tool, modified for ACM Cyber"
 readme = "README.rst"
 authors = ["ACM Cyber <uclacyber+rcds@acmcyber.com>", "redpwn <contact@redpwn.net>"]
