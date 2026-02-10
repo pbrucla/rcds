@@ -329,14 +329,14 @@ properties:
     type: object
     description: >-
       Configuration for the cyber-instancer backend. Only used when
-      backend is set to "instancer".
+      backend is set to "instancer". Defaults for these properties can be
+      set in the instancer backend options under "defaults" in rcds.yaml.
     properties:
       per_team:
         type: boolean
         description: >-
           Whether each team gets their own isolated instance. If false, all
           teams share a single instance.
-        default: true
       lifetime:
         type: integer
         description: >-
@@ -350,8 +350,6 @@ properties:
           information to the user. Useful for challenges that need time to
           initialize.
         minimum: 0
-        default: 0
-    default: {}
 required:
 - name
 - description

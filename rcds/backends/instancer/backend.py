@@ -91,8 +91,8 @@ class InstancerClient:
         name: str,
         description: str,
         author: str,
-        categories: List[str],
-        tags: List[str],
+        categories: List[str] | None,
+        tags: List[str] | None,
         replace_existing: bool = True,
     ) -> None:
         """Create or replace a challenge."""
@@ -105,8 +105,8 @@ class InstancerClient:
             "name": name,
             "description": description,
             "author": author,
-            "categories": " ".join(categories) if categories else "",
-            "tags": " ".join(tags) if tags else "",
+            "categories": ",".join(categories) if categories else "",
+            "tags": ",".join(tags) if tags else "",
             "replace_existing": "true" if replace_existing else "false",
         }
         resp = self.session.post(
@@ -172,6 +172,12 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
 
     def patch_challenge_schema(self, schema: Dict[str, Any]) -> None:
         """Add instancer-specific fields to challenge schema."""
+        # Note: We intentionally do NOT set "default" on per_team, lifetime, or
+        # boot_time here. Schema-level defaults would be filled in by the
+        # DefaultValidatingDraft7Validator before the backend can apply its own
+        # defaults from rcds.yaml backend options, preventing those options from
+        # taking effect. Instead, the backend applies defaults at deploy time in
+        # commit().
         schema["properties"]["instancer"] = {
             "type": "object",
             "description": (
@@ -185,7 +191,6 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
                         "Whether each team gets their own isolated instance. "
                         "If false, all teams share a single instance."
                     ),
-                    "default": True,
                 },
                 "lifetime": {
                     "type": "integer",
@@ -204,10 +209,8 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
                         "that need time to initialize."
                     ),
                     "minimum": 0,
-                    "default": 15,
                 },
             },
-            "default": {},
         }
 
     def _should_handle_challenge(self, challenge: rcds.Challenge) -> bool:
