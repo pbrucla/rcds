@@ -133,6 +133,14 @@ class ScoreboardBackend(rcds.backend.BackendScoreboard):
         ]:
             rctf_challenge[common_field] = challenge.config[common_field]
         rctf_challenge["description"] = challenge.render_description()
+        # add tags
+        rctf_challenge["tags"] = []
+        if "tags" in challenge.config:
+            rctf_challenge["tags"] = challenge.config["tags"].copy()
+
+        if challenge.config["event"] != "":
+            rctf_challenge["tags"].append(challenge.config["event"])
+
         if "value" in challenge.config:
             # Static value
             rctf_challenge["points"] = {

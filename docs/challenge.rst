@@ -35,6 +35,8 @@ files can either be a string, in which case they are interpreted as the path to
 the file, or an object with the ``file`` and ``as`` properties; these properties
 define the path and the displayed name of the file, respectively.
 
+``tags`` --- an array of strings used to tag a challenge
+
 ``value`` --- point value of this challenge. Meaning is defined by the
 scoreboard backend.
 
