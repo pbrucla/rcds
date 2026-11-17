@@ -67,10 +67,10 @@ class ContainerBackend(rcds.backend.BackendContainerRuntime):
         return self._project.get_backend_name_for_challenge(challenge) == "k8s"
 
     def commit(self, dry_run: bool = False, partial: bool = False) -> bool:
-        deployed_challs = filter(
+        deployed_challs = list(filter(
             lambda c: c.config["deployed"] and self._should_handle_challenge(c),
             self._project.challenges.values(),
-        )
+        ))
         seccomp_profiles = [
             p
             for chall in deployed_challs
